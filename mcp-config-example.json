@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "gtm": {
+      "command": "node",
+      "args": [
+        "/Users/01035280/Documents/タグマネTテスト/GTM_MCP/src/index.js"
+      ],
+      "env": {
+        "GOOGLE_CLIENT_ID": "your-client-id.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "your-client-secret",
+        "GOOGLE_REDIRECT_URI": "http://localhost:3000/oauth2callback"
+      }
+    }
+  }
+}
+
