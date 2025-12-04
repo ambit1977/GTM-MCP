@@ -109,26 +109,120 @@ CursorなどのMCPクライアントで、このサーバーを設定します�
 - `create_tag`: 新しいタグを作成
 - `update_tag`: 既存のタグを更新
 - `delete_tag`: タグを削除
+  - サポートする主要なタグタイプ:
+    - `googtag`: GA4設定タグ
+    - `gaawe`: GA4イベントタグ
+    - `awct`: Google広告コンバージョントラッキング
+    - `html`: カスタムHTMLタグ
+    - `img`: カスタム画像タグ（ピクセルトラッキング）
+    - `fbq`: Facebookピクセル
+    - `ua`: Universal Analytics（旧GA）
 
 #### トリガー操作
 - `list_triggers`: トリガー一覧を取得
 - `create_trigger`: 新しいトリガーを作成
   - サポートするトリガータイプ:
-    - `PAGEVIEW`: ページビュートリガー
-    - `CUSTOM_EVENT`: カスタムイベントトリガー（`customEventFilter`を使用）
+    - `pageview`: ページビュートリガー
+    - `customEvent`: カスタムイベントトリガー（`customEventFilter`を使用）
     - `linkClick`: リンククリックトリガー（`filter`、`autoEventFilter`、`waitForTags`などを使用）
     - `click`: クリックトリガー（`filter`を使用）
+    - `formSubmission`: フォーム送信トリガー（`formId`、`formClasses`を使用）
+    - `scrollDepth`: スクロール深度トリガー（`verticalThreshold`、`horizontalThreshold`を使用）
+    - `visible` / `elementVisibility`: 要素の表示トリガー（`selector`、`visiblePercentageThreshold`を使用）
+    - `youtubeVideo`: YouTube動画トリガー（`videoId`、各種`enableTriggerOnVideo*`を使用）
+    - `timer`: タイマートリガー（`interval`、`limit`、`startTimerOn`を使用）
 
 #### 変数操作
 - `list_variables`: 変数一覧を取得
 - `create_variable`: 新しい変数を作成
+  - サポートする変数タイプ:
+    - `c`: 定数変数
+    - `v`: データレイヤー変数
+    - `j`: JavaScript変数
+    - `d`: DOM要素変数
+    - `k`: 1st Party Cookie変数
+    - `u`: URL変数
+    - `ae`: 自動イベント変数
+    - `b`: 組み込み変数
 
 #### バージョン操作
 - `create_version`: ワークスペースの変更をバージョンとして作成
 
 ### 使用例
 
-#### linkClickトリガーの作成
+#### 主要なタグタイプの作成
+
+##### GA4設定タグ
+```json
+{
+  "name": "GA4設定",
+  "type": "googtag",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "tagId",
+      "value": "G-XXXXXXXXXX"
+    }
+  ],
+  "firingTriggerId": ["2147479573"]
+}
+```
+
+##### GA4イベントタグ
+```json
+{
+  "name": "GA4 イベント",
+  "type": "gaawe",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "eventName",
+      "value": "custom_event"
+    },
+    {
+      "type": "boolean",
+      "key": "sendEcommerceData",
+      "value": "false"
+    },
+    {
+      "type": "template",
+      "key": "measurementIdOverride",
+      "value": "G-XXXXXXXXXX"
+    }
+  ],
+  "firingTriggerId": ["トリガーID"]
+}
+```
+
+##### Google広告コンバージョントラッキング
+```json
+{
+  "name": "Google広告コンバージョン",
+  "type": "awct",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "conversionId",
+      "value": "1006772047"
+    },
+    {
+      "type": "template",
+      "key": "conversionLabel",
+      "value": "0L_dCLyI84sBEM--iOAD"
+    },
+    {
+      "type": "boolean",
+      "key": "enableConversionLinker",
+      "value": "true"
+    }
+  ],
+  "firingTriggerId": ["トリガーID"]
+}
+```
+
+#### 主要なトリガータイプの作成
+
+##### linkClickトリガーの作成
 
 ```json
 {
@@ -171,6 +265,120 @@ CursorなどのMCPクライアントで、このサーバーを設定します�
   "waitForTags": true,
   "checkValidation": false,
   "waitForTagsTimeout": 2000
+}
+```
+
+##### formSubmissionトリガーの作成
+```json
+{
+  "name": "フォーム送信",
+  "type": "formSubmission",
+  "formId": "contact-form",
+  "formClasses": "form-class"
+}
+```
+
+##### scrollDepthトリガーの作成
+```json
+{
+  "name": "スクロール深度 50%",
+  "type": "scrollDepth",
+  "verticalThreshold": 50,
+  "horizontalThreshold": 75
+}
+```
+
+##### elementVisibilityトリガーの作成
+```json
+{
+  "name": "要素の表示",
+  "type": "visible",
+  "selector": "#important-element",
+  "visiblePercentageThreshold": 50,
+  "continuousTimeMinMilliseconds": 1000
+}
+```
+
+##### youtubeVideoトリガーの作成
+```json
+{
+  "name": "YouTube動画",
+  "type": "youtubeVideo",
+  "videoId": "dQw4w9WgXcQ",
+  "enableTriggerOnVideoStart": true,
+  "enableTriggerOnVideoComplete": true
+}
+```
+
+#### 主要な変数タイプの作成
+
+##### データレイヤー変数
+```json
+{
+  "name": "データレイヤー変数",
+  "type": "v",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "dataLayerVersion",
+      "value": "2"
+    },
+    {
+      "type": "template",
+      "key": "dataLayerVariable",
+      "value": "event"
+    }
+  ]
+}
+```
+
+##### JavaScript変数
+```json
+{
+  "name": "JavaScript変数",
+  "type": "j",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "javascript",
+      "value": "function() {\n  return document.title;\n}"
+    }
+  ]
+}
+```
+
+##### DOM要素変数
+```json
+{
+  "name": "DOM要素変数",
+  "type": "d",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "selector",
+      "value": "#element-id"
+    },
+    {
+      "type": "template",
+      "key": "attributeName",
+      "value": "data-value"
+    }
+  ]
+}
+```
+
+##### Cookie変数
+```json
+{
+  "name": "Cookie変数",
+  "type": "k",
+  "parameter": [
+    {
+      "type": "template",
+      "key": "cookieName",
+      "value": "session_id"
+    }
+  ]
 }
 ```
 

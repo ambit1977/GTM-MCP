@@ -223,7 +223,7 @@ class GTMCPServer {
               },
               type: {
                 type: 'string',
-                description: 'タグタイプ（例: "ua", "gaawc", "gclidw", "fpc"など）',
+                description: 'タグタイプ（例: "googtag"=GA4設定, "gaawe"=GA4イベント, "awct"=Google広告コンバージョン, "html"=カスタムHTML, "img"=カスタム画像, "fbq"=Facebookピクセル, "ua"=Universal Analyticsなど）',
               },
               parameter: {
                 type: 'array',
@@ -400,6 +400,75 @@ class GTMCPServer {
                 type: 'number',
                 description: 'タグ待機タイムアウト（ミリ秒、linkClickタイプ用）',
               },
+              // formSubmission用
+              formId: {
+                type: 'string',
+                description: 'フォームID（formSubmissionタイプ用）',
+              },
+              formClasses: {
+                type: 'string',
+                description: 'フォームクラス（formSubmissionタイプ用）',
+              },
+              // scrollDepth用
+              verticalThreshold: {
+                type: 'number',
+                description: '垂直スクロール閾値（パーセント、scrollDepthタイプ用）',
+              },
+              horizontalThreshold: {
+                type: 'number',
+                description: '水平スクロール閾値（パーセント、scrollDepthタイプ用）',
+              },
+              // elementVisibility用
+              selector: {
+                type: 'string',
+                description: 'CSSセレクタ（elementVisibilityタイプ用）',
+              },
+              visiblePercentageThreshold: {
+                type: 'number',
+                description: '表示割合閾値（パーセント、elementVisibilityタイプ用）',
+              },
+              continuousTimeMinMilliseconds: {
+                type: 'number',
+                description: '連続表示時間（ミリ秒、elementVisibilityタイプ用）',
+              },
+              // youtubeVideo用
+              videoId: {
+                type: 'string',
+                description: 'YouTube動画ID（youtubeVideoタイプ用）',
+              },
+              enableTriggerOnVideoStart: {
+                type: 'boolean',
+                description: '動画開始時に発火（youtubeVideoタイプ用）',
+              },
+              enableTriggerOnVideoProgress: {
+                type: 'boolean',
+                description: '動画再生中に発火（youtubeVideoタイプ用）',
+              },
+              enableTriggerOnVideoComplete: {
+                type: 'boolean',
+                description: '動画完了時に発火（youtubeVideoタイプ用）',
+              },
+              enableTriggerOnVideoPause: {
+                type: 'boolean',
+                description: '動画一時停止時に発火（youtubeVideoタイプ用）',
+              },
+              enableTriggerOnVideoSeek: {
+                type: 'boolean',
+                description: '動画シーク時に発火（youtubeVideoタイプ用）',
+              },
+              // timer用
+              interval: {
+                type: 'number',
+                description: 'インターバル（ミリ秒、timerタイプ用）',
+              },
+              limit: {
+                type: 'number',
+                description: '発火回数の上限（timerタイプ用）',
+              },
+              startTimerOn: {
+                type: 'string',
+                description: 'タイマー開始タイミング（timerタイプ用、例: "windowLoad", "domReady"）',
+              },
             },
             required: ['accountId', 'containerId', 'workspaceId', 'name', 'type'],
           },
@@ -450,11 +519,11 @@ class GTMCPServer {
               },
               type: {
                 type: 'string',
-                description: '変数タイプ（例: "c", "v", "jsm", "k", "u"など）',
+                description: '変数タイプ（例: "c"=定数, "v"=データレイヤー, "j"=JavaScript, "d"=DOM要素, "k"=Cookie, "u"=URL, "ae"=自動イベント, "b"=組み込み変数など）',
               },
               parameter: {
                 type: 'array',
-                description: '変数のパラメータ配列',
+                description: '変数のパラメータ配列。タイプに応じて必要なパラメータを設定してください。',
               },
             },
             required: ['accountId', 'containerId', 'workspaceId', 'name', 'type'],
@@ -791,6 +860,168 @@ class GTMCPServer {
                 type: 'template',
                 value: String(args.waitForTagsTimeout)
               };
+            }
+
+            // formSubmission用
+            if (args.type === 'formSubmission') {
+              triggerData.filter = [];
+              if (args.formId) {
+                triggerData.filter.push({
+                  type: 'contains',
+                  parameter: [
+                    {
+                      type: 'template',
+                      key: 'arg0',
+                      value: '{{Form ID}}'
+                    },
+                    {
+                      type: 'template',
+                      key: 'arg1',
+                      value: args.formId
+                    }
+                  ]
+                });
+              }
+              if (args.formClasses) {
+                triggerData.filter.push({
+                  type: 'contains',
+                  parameter: [
+                    {
+                      type: 'template',
+                      key: 'arg0',
+                      value: '{{Form Classes}}'
+                    },
+                    {
+                      type: 'template',
+                      key: 'arg1',
+                      value: args.formClasses
+                    }
+                  ]
+                });
+              }
+            }
+
+            // scrollDepth用
+            if (args.type === 'scrollDepth') {
+              triggerData.parameter = [
+                {
+                  type: 'template',
+                  key: 'verticalThresholdUnits',
+                  value: 'PERCENT'
+                },
+                {
+                  type: 'template',
+                  key: 'verticalThreshold',
+                  value: String(args.verticalThreshold || 25)
+                }
+              ];
+              if (args.horizontalThreshold !== undefined) {
+                triggerData.parameter.push(
+                  {
+                    type: 'template',
+                    key: 'horizontalThresholdUnits',
+                    value: 'PERCENT'
+                  },
+                  {
+                    type: 'template',
+                    key: 'horizontalThreshold',
+                    value: String(args.horizontalThreshold)
+                  }
+                );
+              }
+            }
+
+            // elementVisibility用
+            if (args.type === 'visible' || args.type === 'elementVisibility') {
+              triggerData.type = 'visible';
+              triggerData.parameter = [
+                {
+                  type: 'template',
+                  key: 'selector',
+                  value: args.selector || ''
+                },
+                {
+                  type: 'template',
+                  key: 'visiblePercentageThreshold',
+                  value: String(args.visiblePercentageThreshold || 50)
+                },
+                {
+                  type: 'template',
+                  key: 'continuousTimeMinMilliseconds',
+                  value: String(args.continuousTimeMinMilliseconds || 0)
+                }
+              ];
+            }
+
+            // youtubeVideo用
+            if (args.type === 'youtubeVideo') {
+              triggerData.parameter = [
+                {
+                  type: 'template',
+                  key: 'enableTriggerOnVideoStart',
+                  value: String(args.enableTriggerOnVideoStart || false)
+                },
+                {
+                  type: 'template',
+                  key: 'enableTriggerOnVideoProgress',
+                  value: String(args.enableTriggerOnVideoProgress || false)
+                },
+                {
+                  type: 'template',
+                  key: 'enableTriggerOnVideoComplete',
+                  value: String(args.enableTriggerOnVideoComplete || false)
+                },
+                {
+                  type: 'template',
+                  key: 'enableTriggerOnVideoPause',
+                  value: String(args.enableTriggerOnVideoPause || false)
+                },
+                {
+                  type: 'template',
+                  key: 'enableTriggerOnVideoSeek',
+                  value: String(args.enableTriggerOnVideoSeek || false)
+                }
+              ];
+              if (args.videoId) {
+                triggerData.filter = [
+                  {
+                    type: 'equals',
+                    parameter: [
+                      {
+                        type: 'template',
+                        key: 'arg0',
+                        value: '{{Video ID}}'
+                      },
+                      {
+                        type: 'template',
+                        key: 'arg1',
+                        value: args.videoId
+                      }
+                    ]
+                  }
+                ];
+              }
+            }
+
+            // timer用
+            if (args.type === 'timer') {
+              triggerData.parameter = [
+                {
+                  type: 'template',
+                  key: 'interval',
+                  value: String(args.interval || 1000)
+                },
+                {
+                  type: 'template',
+                  key: 'limit',
+                  value: String(args.limit || 1)
+                },
+                {
+                  type: 'template',
+                  key: 'startTimerOn',
+                  value: args.startTimerOn || 'windowLoad'
+                }
+              ];
             }
 
             return {
