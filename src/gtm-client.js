@@ -127,6 +127,21 @@ export class GTMClient {
   }
 
   /**
+   * タグを取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} tagId - タグID
+   */
+  async getTag(accountId, containerId, workspaceId, tagId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.tags.get({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/tags/${tagId}`
+    });
+    return response.data;
+  }
+
+  /**
    * タグを作成
    * @param {string} accountId - アカウントID
    * @param {string} containerId - コンテナID
@@ -205,6 +220,53 @@ export class GTMClient {
   }
 
   /**
+   * トリガーを取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} triggerId - トリガーID
+   */
+  async getTrigger(accountId, containerId, workspaceId, triggerId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.triggers.get({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/triggers/${triggerId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * トリガーを更新
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} triggerId - トリガーID
+   * @param {Object} triggerData - トリガーデータ
+   */
+  async updateTrigger(accountId, containerId, workspaceId, triggerId, triggerData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.triggers.update({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/triggers/${triggerId}`,
+      requestBody: triggerData
+    });
+    return response.data;
+  }
+
+  /**
+   * トリガーを削除
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} triggerId - トリガーID
+   */
+  async deleteTrigger(accountId, containerId, workspaceId, triggerId) {
+    await this.ensureAuth();
+    await this.tagmanager.accounts.containers.workspaces.triggers.delete({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/triggers/${triggerId}`
+    });
+    return { success: true };
+  }
+
+  /**
    * 変数一覧を取得
    * @param {string} accountId - アカウントID
    * @param {string} containerId - コンテナID
@@ -216,6 +278,21 @@ export class GTMClient {
       parent: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`
     });
     return response.data.variable || [];
+  }
+
+  /**
+   * 変数を取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} variableId - 変数ID
+   */
+  async getVariable(accountId, containerId, workspaceId, variableId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.variables.get({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/variables/${variableId}`
+    });
+    return response.data;
   }
 
   /**
@@ -232,6 +309,38 @@ export class GTMClient {
       requestBody: variableData
     });
     return response.data;
+  }
+
+  /**
+   * 変数を更新
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} variableId - 変数ID
+   * @param {Object} variableData - 変数データ
+   */
+  async updateVariable(accountId, containerId, workspaceId, variableId, variableData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.variables.update({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/variables/${variableId}`,
+      requestBody: variableData
+    });
+    return response.data;
+  }
+
+  /**
+   * 変数を削除
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {string} variableId - 変数ID
+   */
+  async deleteVariable(accountId, containerId, workspaceId, variableId) {
+    await this.ensureAuth();
+    await this.tagmanager.accounts.containers.workspaces.variables.delete({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}/variables/${variableId}`
+    });
+    return { success: true };
   }
 
   /**
