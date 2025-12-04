@@ -27,7 +27,7 @@ async function testLinkClickTrigger() {
     
     // linkClickトリガーを作成
     const triggerData = {
-      name: 'テストリンククリック - test_click9',
+      name: `テストリンククリック - test_click9 - ${Date.now()}`,
       type: 'linkClick',
       filter: [
         {
@@ -65,11 +65,11 @@ async function testLinkClickTrigger() {
       ],
       waitForTags: {
         type: 'boolean',
-        value: true
+        value: 'true'
       },
       checkValidation: {
         type: 'boolean',
-        value: false
+        value: 'false'
       },
       waitForTagsTimeout: {
         type: 'template',
@@ -99,4 +99,5 @@ async function testLinkClickTrigger() {
 }
 
 testLinkClickTrigger();
+
 

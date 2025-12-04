@@ -6,7 +6,15 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "node run-all-tests.js",
+    "test:auth": "node test-auth.js",
+    "test:accounts": "node test-accounts.js",
+    "test:gtm": "node test-gtm.js",
+    "test:details": "node test-details.js",
+    "test:trigger": "node test-linkclick-trigger.js",
+    "test:filter": "node test-create-trigger-filter.js",
+    "test:detailed-filters": "node test-detailed-filters.js"
   },
   "keywords": [
     "mcp",
@@ -25,5 +33,6 @@
     "node": ">=18.0.0"
   }
 }
+
 
 

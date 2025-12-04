@@ -84,6 +84,23 @@ CursorなどのMCPクライアントで、このサーバーを設定します�
 
 または、`.env`ファイルを使用する場合は、環境変数の設定を省略できます。
 
+### MCPサーバーの再起動
+
+MCPサーバーを再起動する方法は以下の通りです：
+
+1. **Cursorを再起動する**（最も確実な方法）
+   - Cursorを完全に終了（`Cmd + Q`）してから再起動
+
+2. **MCP設定ファイルを編集して保存する**
+   - `~/.cursor/mcp.json` を開き、コメントやスペースを追加・削除して保存
+   - Cursorが設定変更を検知してMCPサーバーを再起動することがあります
+
+3. **コマンドパレットから再起動する**（Cursorのバージョンによる）
+   - `Cmd + Shift + P`（Mac）または `Ctrl + Shift + P`（Windows/Linux）でコマンドパレットを開く
+   - 「MCP」や「reload」などのキーワードで検索し、MCPサーバー再起動コマンドを実行
+
+**注意**: 現在のCursorのバージョンでは、MCP設定ファイルの編集による再起動が最も簡単な方法です。
+
 ### 利用可能なツール
 
 #### 認証操作
@@ -447,6 +464,35 @@ npm run dev
 
 ```bash
 npm start
+```
+
+### テストの実行
+
+すべてのテストを実行（リグレッションテスト）:
+
+```bash
+npm test
+```
+
+個別のテストを実行:
+
+```bash
+npm run test:auth              # 認証テスト
+npm run test:accounts           # アカウント一覧取得テスト
+npm run test:gtm                # 基本GTMテスト
+npm run test:details            # 詳細情報取得テスト
+npm run test:trigger            # linkClickトリガー作成テスト
+npm run test:filter             # filter/autoEventFilterテスト
+npm run test:detailed-filters   # 詳細フィルタ設定テスト
+```
+
+テストファイルを直接実行することも可能です:
+
+```bash
+node run-all-tests.js           # すべてのテストを実行
+node test-auth.js               # 認証テスト
+node test-accounts.js            # アカウント一覧取得テスト
+# ... など
 ```
 
 ## 注意事項

@@ -1172,19 +1172,37 @@ class GTMCPServer {
 
             // フィルタ（linkClick、clickなどのタイプ用）
             if (args.filter) {
-              triggerData.filter = args.filter;
+              // JSON文字列の場合は配列に変換
+              if (typeof args.filter === 'string') {
+                try {
+                  triggerData.filter = JSON.parse(args.filter);
+                } catch (e) {
+                  triggerData.filter = args.filter;
+                }
+              } else {
+                triggerData.filter = args.filter;
+              }
             }
 
             // 自動イベントフィルタ（linkClickタイプ用）
             if (args.autoEventFilter) {
-              triggerData.autoEventFilter = args.autoEventFilter;
+              // JSON文字列の場合は配列に変換
+              if (typeof args.autoEventFilter === 'string') {
+                try {
+                  triggerData.autoEventFilter = JSON.parse(args.autoEventFilter);
+                } catch (e) {
+                  triggerData.autoEventFilter = args.autoEventFilter;
+                }
+              } else {
+                triggerData.autoEventFilter = args.autoEventFilter;
+              }
             }
 
             // タグ待機設定（linkClickタイプ用）
             if (args.waitForTags !== undefined) {
               triggerData.waitForTags = {
                 type: 'boolean',
-                value: args.waitForTags
+                value: String(args.waitForTags)
               };
             }
 
@@ -1192,7 +1210,7 @@ class GTMCPServer {
             if (args.checkValidation !== undefined) {
               triggerData.checkValidation = {
                 type: 'boolean',
-                value: args.checkValidation
+                value: String(args.checkValidation)
               };
             }
 
@@ -1364,6 +1382,30 @@ class GTMCPServer {
                   value: args.startTimerOn || 'windowLoad'
                 }
               ];
+            }
+
+            // linkClickタイプの場合、waitForTags、checkValidation、waitForTagsTimeoutが未設定の場合はデフォルト値を設定
+            if (triggerData.type === 'linkClick') {
+              if (triggerData.waitForTags === undefined) {
+                triggerData.waitForTags = {
+                  type: 'template'
+                };
+              }
+              if (triggerData.checkValidation === undefined) {
+                triggerData.checkValidation = {
+                  type: 'template'
+                };
+              }
+              if (triggerData.waitForTagsTimeout === undefined) {
+                triggerData.waitForTagsTimeout = {
+                  type: 'template'
+                };
+              }
+              if (!triggerData.uniqueTriggerId) {
+                triggerData.uniqueTriggerId = {
+                  type: 'template'
+                };
+              }
             }
 
             return {
