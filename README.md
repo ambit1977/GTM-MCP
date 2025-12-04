@@ -113,6 +113,11 @@ CursorなどのMCPクライアントで、このサーバーを設定します�
 #### トリガー操作
 - `list_triggers`: トリガー一覧を取得
 - `create_trigger`: 新しいトリガーを作成
+  - サポートするトリガータイプ:
+    - `PAGEVIEW`: ページビュートリガー
+    - `CUSTOM_EVENT`: カスタムイベントトリガー（`customEventFilter`を使用）
+    - `linkClick`: リンククリックトリガー（`filter`、`autoEventFilter`、`waitForTags`などを使用）
+    - `click`: クリックトリガー（`filter`を使用）
 
 #### 変数操作
 - `list_variables`: 変数一覧を取得
@@ -120,6 +125,54 @@ CursorなどのMCPクライアントで、このサーバーを設定します�
 
 #### バージョン操作
 - `create_version`: ワークスペースの変更をバージョンとして作成
+
+### 使用例
+
+#### linkClickトリガーの作成
+
+```json
+{
+  "name": "リンククリック - test_click9",
+  "type": "linkClick",
+  "filter": [
+    {
+      "type": "contains",
+      "parameter": [
+        {
+          "type": "template",
+          "key": "arg0",
+          "value": "{{Click URL}}"
+        },
+        {
+          "type": "template",
+          "key": "arg1",
+          "value": "test_click9"
+        }
+      ]
+    }
+  ],
+  "autoEventFilter": [
+    {
+      "type": "contains",
+      "parameter": [
+        {
+          "type": "template",
+          "key": "arg0",
+          "value": "{{Page URL}}"
+        },
+        {
+          "type": "template",
+          "key": "arg1",
+          "value": "20251202cvtest/test1.html"
+        }
+      ]
+    }
+  ],
+  "waitForTags": true,
+  "checkValidation": false,
+  "waitForTagsTimeout": 2000
+}
+```
 
 ## 開発
 

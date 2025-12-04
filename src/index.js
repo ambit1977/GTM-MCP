@@ -374,11 +374,31 @@ class GTMCPServer {
               },
               type: {
                 type: 'string',
-                description: 'トリガータイプ（例: "PAGEVIEW", "CLICK", "CUSTOM_EVENT"など）',
+                description: 'トリガータイプ（例: "PAGEVIEW", "CLICK", "CUSTOM_EVENT", "linkClick"など）',
               },
               customEventFilter: {
                 type: 'array',
-                description: 'カスタムイベントフィルタ',
+                description: 'カスタムイベントフィルタ（CUSTOM_EVENTタイプ用）',
+              },
+              filter: {
+                type: 'array',
+                description: 'フィルタ（linkClick、clickなどのタイプ用）',
+              },
+              autoEventFilter: {
+                type: 'array',
+                description: '自動イベントフィルタ（linkClickタイプ用）',
+              },
+              waitForTags: {
+                type: 'boolean',
+                description: 'タグの待機を有効化（linkClickタイプ用）',
+              },
+              checkValidation: {
+                type: 'boolean',
+                description: 'バリデーションチェック（linkClickタイプ用）',
+              },
+              waitForTagsTimeout: {
+                type: 'number',
+                description: 'タグ待機タイムアウト（ミリ秒、linkClickタイプ用）',
               },
             },
             required: ['accountId', 'containerId', 'workspaceId', 'name', 'type'],
@@ -728,7 +748,51 @@ class GTMCPServer {
               ],
             };
 
-          case 'create_trigger':
+          case 'create_trigger': {
+            const triggerData = {
+              name: args.name,
+              type: args.type,
+            };
+
+            // カスタムイベントフィルタ（CUSTOM_EVENTタイプ用）
+            if (args.customEventFilter) {
+              triggerData.customEventFilter = args.customEventFilter;
+            }
+
+            // フィルタ（linkClick、clickなどのタイプ用）
+            if (args.filter) {
+              triggerData.filter = args.filter;
+            }
+
+            // 自動イベントフィルタ（linkClickタイプ用）
+            if (args.autoEventFilter) {
+              triggerData.autoEventFilter = args.autoEventFilter;
+            }
+
+            // タグ待機設定（linkClickタイプ用）
+            if (args.waitForTags !== undefined) {
+              triggerData.waitForTags = {
+                type: 'boolean',
+                value: args.waitForTags
+              };
+            }
+
+            // バリデーションチェック（linkClickタイプ用）
+            if (args.checkValidation !== undefined) {
+              triggerData.checkValidation = {
+                type: 'boolean',
+                value: args.checkValidation
+              };
+            }
+
+            // タグ待機タイムアウト（linkClickタイプ用）
+            if (args.waitForTagsTimeout !== undefined) {
+              triggerData.waitForTagsTimeout = {
+                type: 'template',
+                value: String(args.waitForTagsTimeout)
+              };
+            }
+
             return {
               content: [
                 {
@@ -738,11 +802,7 @@ class GTMCPServer {
                       args.accountId,
                       args.containerId,
                       args.workspaceId,
-                      {
-                        name: args.name,
-                        type: args.type,
-                        customEventFilter: args.customEventFilter || [],
-                      }
+                      triggerData
                     ),
                     null,
                     2
@@ -750,6 +810,7 @@ class GTMCPServer {
                 },
               ],
             };
+          }
 
           case 'list_variables':
             return {
