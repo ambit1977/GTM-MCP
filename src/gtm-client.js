@@ -47,6 +47,32 @@ export class GTMClient {
   }
 
   /**
+   * アカウントを取得
+   * @param {string} accountId - アカウントID
+   */
+  async getAccount(accountId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.get({
+      path: `accounts/${accountId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * アカウントを更新
+   * @param {string} accountId - アカウントID
+   * @param {Object} accountData - アカウントデータ（nameなど）
+   */
+  async updateAccount(accountId, accountData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.update({
+      path: `accounts/${accountId}`,
+      requestBody: accountData
+    });
+    return response.data;
+  }
+
+  /**
    * コンテナ一覧を取得
    * @param {string} accountId - アカウントID
    */
@@ -86,6 +112,34 @@ export class GTMClient {
   }
 
   /**
+   * コンテナを更新
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {Object} containerData - コンテナデータ
+   */
+  async updateContainer(accountId, containerId, containerData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.update({
+      path: `accounts/${accountId}/containers/${containerId}`,
+      requestBody: containerData
+    });
+    return response.data;
+  }
+
+  /**
+   * コンテナを削除
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   */
+  async deleteContainer(accountId, containerId) {
+    await this.ensureAuth();
+    await this.tagmanager.accounts.containers.delete({
+      path: `accounts/${accountId}/containers/${containerId}`
+    });
+    return { success: true };
+  }
+
+  /**
    * ワークスペース一覧を取得
    * @param {string} accountId - アカウントID
    * @param {string} containerId - コンテナID
@@ -107,6 +161,95 @@ export class GTMClient {
   async getWorkspace(accountId, containerId, workspaceId) {
     await this.ensureAuth();
     const response = await this.tagmanager.accounts.containers.workspaces.get({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * ワークスペースを作成
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {Object} workspaceData - ワークスペースデータ
+   */
+  async createWorkspace(accountId, containerId, workspaceData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.create({
+      parent: `accounts/${accountId}/containers/${containerId}`,
+      requestBody: workspaceData
+    });
+    return response.data;
+  }
+
+  /**
+   * ワークスペースを更新
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {Object} workspaceData - ワークスペースデータ
+   */
+  async updateWorkspace(accountId, containerId, workspaceId, workspaceData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.update({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`,
+      requestBody: workspaceData
+    });
+    return response.data;
+  }
+
+  /**
+   * ワークスペースを削除
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   */
+  async deleteWorkspace(accountId, containerId, workspaceId) {
+    await this.ensureAuth();
+    await this.tagmanager.accounts.containers.workspaces.delete({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`
+    });
+    return { success: true };
+  }
+
+  /**
+   * ワークスペースを同期
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   */
+  async syncWorkspace(accountId, containerId, workspaceId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.sync({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * ワークスペースのコンフリクトを解決
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @param {Object} conflictData - コンフリクト解決データ
+   */
+  async resolveConflict(accountId, containerId, workspaceId, conflictData) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.resolve_conflict({
+      path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`,
+      requestBody: conflictData
+    });
+    return response.data;
+  }
+
+  /**
+   * クイックプレビューを取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   */
+  async quickPreview(accountId, containerId, workspaceId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.workspaces.quick_preview({
       path: `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`
     });
     return response.data;
@@ -344,7 +487,7 @@ export class GTMClient {
   }
 
   /**
-   * バージョンを作成（公開）
+   * バージョンを作成（公開準備）
    * @param {string} accountId - アカウントID
    * @param {string} containerId - コンテナID
    * @param {string} workspaceId - ワークスペースID
@@ -360,10 +503,58 @@ export class GTMClient {
   }
 
   /**
+   * バージョン一覧を取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   */
+  async listVersions(accountId, containerId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.versions.list({
+      parent: `accounts/${accountId}/containers/${containerId}`
+    });
+    return response.data.containerVersion || [];
+  }
+
+  /**
+   * バージョンを取得
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} versionId - バージョンID
+   */
+  async getVersion(accountId, containerId, versionId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.versions.get({
+      path: `accounts/${accountId}/containers/${containerId}/versions/${versionId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * バージョンを公開
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} versionId - バージョンID
+   */
+  async publishVersion(accountId, containerId, versionId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.containers.versions.publish({
+      path: `accounts/${accountId}/containers/${containerId}/versions/${versionId}`
+    });
+    return response.data;
+  }
+
+  /**
    * OAuth2認証オブジェクトを取得
    */
   getOAuth2Auth() {
     return this.oauth2Auth;
+  }
+
+  /**
+   * Tag Manager APIクライアントを取得
+   */
+  getTagManager() {
+    return this.tagmanager;
   }
 }
 

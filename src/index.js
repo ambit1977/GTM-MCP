@@ -80,6 +80,38 @@ class GTMCPServer {
           },
         },
         {
+          name: 'get_account',
+          description: '指定されたアカウントの詳細を取得します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+            },
+            required: ['accountId'],
+          },
+        },
+        {
+          name: 'update_account',
+          description: 'アカウント情報を更新します（名前など）',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              name: {
+                type: 'string',
+                description: '新しいアカウント名',
+              },
+            },
+            required: ['accountId', 'name'],
+          },
+        },
+        {
           name: 'list_containers',
           description: '指定されたアカウントのコンテナ一覧を取得します',
           inputSchema: {
@@ -138,6 +170,50 @@ class GTMCPServer {
           },
         },
         {
+          name: 'update_container',
+          description: 'コンテナ情報を更新します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              name: {
+                type: 'string',
+                description: '新しいコンテナ名',
+              },
+              fingerprint: {
+                type: 'string',
+                description: 'フィンガープリント（既存のコンテナを取得して取得）',
+              },
+            },
+            required: ['accountId', 'containerId', 'name', 'fingerprint'],
+          },
+        },
+        {
+          name: 'delete_container',
+          description: 'コンテナを削除します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+            },
+            required: ['accountId', 'containerId'],
+          },
+        },
+        {
           name: 'list_workspaces',
           description: '指定されたコンテナのワークスペース一覧を取得します',
           inputSchema: {
@@ -158,6 +234,132 @@ class GTMCPServer {
         {
           name: 'get_workspace',
           description: '指定されたワークスペースの詳細を取得します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId'],
+          },
+        },
+        {
+          name: 'create_workspace',
+          description: '新しいワークスペースを作成します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              name: {
+                type: 'string',
+                description: 'ワークスペース名',
+              },
+              description: {
+                type: 'string',
+                description: 'ワークスペースの説明',
+              },
+            },
+            required: ['accountId', 'containerId', 'name'],
+          },
+        },
+        {
+          name: 'update_workspace',
+          description: 'ワークスペース情報を更新します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+              name: {
+                type: 'string',
+                description: '新しいワークスペース名',
+              },
+              description: {
+                type: 'string',
+                description: 'ワークスペースの説明',
+              },
+              fingerprint: {
+                type: 'string',
+                description: 'フィンガープリント（既存のワークスペースを取得して取得）',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId', 'fingerprint'],
+          },
+        },
+        {
+          name: 'delete_workspace',
+          description: 'ワークスペースを削除します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId'],
+          },
+        },
+        {
+          name: 'sync_workspace',
+          description: 'ワークスペースを同期します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId'],
+          },
+        },
+        {
+          name: 'quick_preview',
+          description: 'ワークスペースのクイックプレビューを取得します',
           inputSchema: {
             type: 'object',
             properties: {
@@ -854,6 +1056,68 @@ class GTMCPServer {
             required: ['accountId', 'containerId', 'workspaceId'],
           },
         },
+        {
+          name: 'list_versions',
+          description: 'コンテナのバージョン一覧を取得します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+            },
+            required: ['accountId', 'containerId'],
+          },
+        },
+        {
+          name: 'get_version',
+          description: '指定されたバージョンの詳細を取得します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              versionId: {
+                type: 'string',
+                description: 'バージョンID',
+              },
+            },
+            required: ['accountId', 'containerId', 'versionId'],
+          },
+        },
+        {
+          name: 'publish_version',
+          description: 'バージョンを公開します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              versionId: {
+                type: 'string',
+                description: 'バージョンID',
+              },
+            },
+            required: ['accountId', 'containerId', 'versionId'],
+          },
+        },
       ],
     }));
 
@@ -931,6 +1195,36 @@ class GTMCPServer {
               ],
             };
 
+          case 'get_account':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.getAccount(args.accountId),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'update_account':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.updateAccount(args.accountId, {
+                      name: args.name,
+                    }),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case 'list_containers':
             return {
               content: [
@@ -976,6 +1270,52 @@ class GTMCPServer {
               ],
             };
 
+          case 'update_container': {
+            // 既存のコンテナを取得してfingerprintを確認
+            const existingContainer = await this.gtmClient.getContainer(
+              args.accountId,
+              args.containerId
+            );
+            const fingerprint = args.fingerprint || existingContainer.fingerprint;
+            
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.updateContainer(
+                      args.accountId,
+                      args.containerId,
+                      {
+                        name: args.name,
+                        fingerprint: fingerprint,
+                      }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+          }
+
+          case 'delete_container':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.deleteContainer(
+                      args.accountId,
+                      args.containerId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
           case 'list_workspaces':
             return {
               content: [
@@ -997,6 +1337,211 @@ class GTMCPServer {
                   type: 'text',
                   text: JSON.stringify(
                     await this.gtmClient.getWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'create_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.createWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      {
+                        name: args.name,
+                        description: args.description,
+                      }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'update_workspace': {
+            // 既存のワークスペースを取得してfingerprintを確認
+            const existingWorkspace = await this.gtmClient.getWorkspace(
+              args.accountId,
+              args.containerId,
+              args.workspaceId
+            );
+            const fingerprint = args.fingerprint || existingWorkspace.fingerprint;
+            
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.updateWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId,
+                      {
+                        name: args.name,
+                        description: args.description,
+                        fingerprint: fingerprint,
+                      }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+          }
+
+          case 'delete_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.deleteWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'sync_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.syncWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'quick_preview':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.quickPreview(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'create_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.createWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      {
+                        name: args.name,
+                        description: args.description,
+                      }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'update_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.updateWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId,
+                      {
+                        name: args.name,
+                        description: args.description,
+                        fingerprint: args.fingerprint,
+                      }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'delete_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.deleteWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'sync_workspace':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.syncWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'quick_preview':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.quickPreview(
                       args.accountId,
                       args.containerId,
                       args.workspaceId
@@ -1470,14 +2015,32 @@ class GTMCPServer {
 
             // フィルタ
             if (args.filter !== undefined) {
-              triggerData.filter = args.filter;
+              // JSON文字列の場合は配列に変換
+              if (typeof args.filter === 'string') {
+                try {
+                  triggerData.filter = JSON.parse(args.filter);
+                } catch (e) {
+                  triggerData.filter = args.filter;
+                }
+              } else {
+                triggerData.filter = args.filter;
+              }
             } else if (existingTrigger.filter) {
               triggerData.filter = existingTrigger.filter;
             }
 
             // 自動イベントフィルタ
             if (args.autoEventFilter !== undefined) {
-              triggerData.autoEventFilter = args.autoEventFilter;
+              // JSON文字列の場合は配列に変換
+              if (typeof args.autoEventFilter === 'string') {
+                try {
+                  triggerData.autoEventFilter = JSON.parse(args.autoEventFilter);
+                } catch (e) {
+                  triggerData.autoEventFilter = args.autoEventFilter;
+                }
+              } else {
+                triggerData.autoEventFilter = args.autoEventFilter;
+              }
             } else if (existingTrigger.autoEventFilter) {
               triggerData.autoEventFilter = existingTrigger.autoEventFilter;
             }
@@ -1486,7 +2049,7 @@ class GTMCPServer {
             if (args.waitForTags !== undefined) {
               triggerData.waitForTags = {
                 type: 'boolean',
-                value: args.waitForTags
+                value: String(args.waitForTags)
               };
             } else if (existingTrigger.waitForTags) {
               triggerData.waitForTags = existingTrigger.waitForTags;
@@ -1496,7 +2059,7 @@ class GTMCPServer {
             if (args.checkValidation !== undefined) {
               triggerData.checkValidation = {
                 type: 'boolean',
-                value: args.checkValidation
+                value: String(args.checkValidation)
               };
             } else if (existingTrigger.checkValidation) {
               triggerData.checkValidation = existingTrigger.checkValidation;
@@ -1926,6 +2489,59 @@ class GTMCPServer {
                         name: args.name,
                         notes: args.notes,
                       }
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'list_versions':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.listVersions(
+                      args.accountId,
+                      args.containerId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'get_version':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.getVersion(
+                      args.accountId,
+                      args.containerId,
+                      args.versionId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'publish_version':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.publishVersion(
+                      args.accountId,
+                      args.containerId,
+                      args.versionId
                     ),
                     null,
                     2

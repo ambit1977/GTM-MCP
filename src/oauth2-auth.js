@@ -21,11 +21,12 @@ export class OAuth2Auth {
     this.redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/oauth2callback';
     this.tokenPath = process.env.GTM_TOKEN_PATH || join(homedir(), '.gtm-mcp-token.json');
     this.scopes = [
+      'https://www.googleapis.com/auth/tagmanager.readonly',
       'https://www.googleapis.com/auth/tagmanager.edit.containers',
       'https://www.googleapis.com/auth/tagmanager.delete.containers',
       'https://www.googleapis.com/auth/tagmanager.edit.containerversions',
       'https://www.googleapis.com/auth/tagmanager.publish',
-      'https://www.googleapis.com/auth/tagmanager.readonly'
+      'https://www.googleapis.com/auth/tagmanager.manage.accounts'
     ];
     this.oAuth2Client = null;
     this.initializeClient();
