@@ -544,6 +544,73 @@ export class GTMClient {
   }
 
   /**
+   * アカウントのユーザー権限一覧を取得
+   * @param {string} accountId - アカウントID
+   */
+  async listUserPermissions(accountId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.user_permissions.list({
+      parent: `accounts/${accountId}`
+    });
+    return response.data.userPermission || [];
+  }
+
+  /**
+   * ユーザー権限を取得
+   * @param {string} accountId - アカウントID
+   * @param {string} userPermissionId - ユーザー権限ID（pathの末尾部分）
+   */
+  async getUserPermission(accountId, userPermissionId) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.user_permissions.get({
+      path: `accounts/${accountId}/user_permissions/${userPermissionId}`
+    });
+    return response.data;
+  }
+
+  /**
+   * ユーザー権限を作成
+   * @param {string} accountId - アカウントID
+   * @param {Object} body - emailAddress, accountAccess { permission }, containerAccess [ { containerId, permission } ]
+   */
+  async createUserPermission(accountId, body) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.user_permissions.create({
+      parent: `accounts/${accountId}`,
+      requestBody: body
+    });
+    return response.data;
+  }
+
+  /**
+   * ユーザー権限を更新
+   * @param {string} accountId - アカウントID
+   * @param {string} userPermissionId - ユーザー権限ID
+   * @param {Object} body - 更新するフィールド（accountAccess, containerAccess など）
+   */
+  async updateUserPermission(accountId, userPermissionId, body) {
+    await this.ensureAuth();
+    const response = await this.tagmanager.accounts.user_permissions.update({
+      path: `accounts/${accountId}/user_permissions/${userPermissionId}`,
+      requestBody: body
+    });
+    return response.data;
+  }
+
+  /**
+   * ユーザー権限を削除（アカウントからのアクセスを取り消し）
+   * @param {string} accountId - アカウントID
+   * @param {string} userPermissionId - ユーザー権限ID
+   */
+  async deleteUserPermission(accountId, userPermissionId) {
+    await this.ensureAuth();
+    await this.tagmanager.accounts.user_permissions.delete({
+      path: `accounts/${accountId}/user_permissions/${userPermissionId}`
+    });
+    return { success: true };
+  }
+
+  /**
    * OAuth2認証オブジェクトを取得
    */
   getOAuth2Auth() {

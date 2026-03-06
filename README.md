@@ -7,6 +7,7 @@ Google Tag Managerを操作するためのMCP（Model Context Protocol）サー�
 このMCPサーバーは以下のGoogle Tag Manager操作を提供します：
 
 - **アカウント管理**: アカウント一覧の取得、詳細取得、更新
+- **ユーザー権限管理**: ユーザー権限の一覧取得、詳細取得、作成、更新、削除（tagmanager.manage.usersスコープ必要、要再認証）
 - **コンテナ管理**: コンテナの一覧取得、詳細取得、作成、更新、削除
 - **ワークスペース管理**: ワークスペースの一覧取得、詳細取得、作成、更新、削除、同期、クイックプレビュー
 - **タグ管理**: タグの一覧取得、詳細取得、作成、更新、削除
@@ -51,17 +52,21 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/oauth2callback
 
 **注意**: `GOOGLE_REDIRECT_URI`は、Google Cloud ConsoleのOAuth2認証情報設定で「承認済みのリダイレクト URI」に追加する必要があります。
 
-### 4. 初回認証
+### 4. 初回認証・再認証
 
-MCPサーバーを起動後、以下の手順で認証を行います：
+**おすすめ（手間なし）**: プロジェクトのルートで次を実行し、開いたブラウザでGoogleにログインして権限を承認するだけです。コールバック用の一時サーバーが code を受け取り、トークン保存まで自動で行います。
 
-1. `get_auth_url`ツールを使用して認証URLを取得
-2. ブラウザで認証URLにアクセス
-3. Googleアカウントでログインし、権限を承認
-4. リダイレクト先のURLから認証コードを取得（`code=`の後の値）
-5. `authenticate`ツールに認証コードを渡して認証を完了
+```bash
+node auth.js
+# または
+npm run auth
+```
 
 認証情報は `~/.gtm-mcp-token.json` に保存され、次回以降は自動的に使用されます。
+
+**ユーザー権限管理を使う場合**: ユーザー権限の作成・更新には `tagmanager.manage.users` スコープが必要です。既存のトークンに含まれていない場合は、上記の `node auth.js`（または `npm run auth`）を実行して再認証すれば、新しいスコープ付きのトークンが取得できます。事前に `reset_auth` でトークンを消してから実行してもかまいません。
+
+**手動で行う場合**: MCPの `get_auth_url` でURLを取得 → ブラウザで認証 → リダイレクト先の `code=` の値をコピー → `authenticate` に渡す、または `node test-auth.js "認証コード"` を実行。
 
 ## 使用方法
 
@@ -118,6 +123,15 @@ MCPサーバーを再起動する方法は以下の通りです：
 - `list_accounts`: アカウント一覧を取得
 - `get_account`: アカウントの詳細を取得
 - `update_account`: アカウント情報を更新（名前など）
+
+#### ユーザー権限操作（アカウント管理）
+- `list_user_permissions`: アカウントのユーザー権限一覧を取得
+- `get_user_permission`: 指定ユーザー権限の詳細を取得
+- `create_user_permission`: アカウント・コンテナへのユーザーアクセスを作成（メール、アカウント権限: noAccess/user/admin、コンテナ権限: noAccess/read/edit/approve/publish）
+- `update_user_permission`: ユーザー権限を更新
+- `delete_user_permission`: ユーザー権限を削除（アクセス取り消し）
+
+※ ユーザー権限の作成・更新には `tagmanager.manage.users` スコープが必要です。既存トークンでは再認証してください。
 
 #### コンテナ操作
 - `list_containers`: コンテナ一覧を取得

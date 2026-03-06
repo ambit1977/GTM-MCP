@@ -112,6 +112,124 @@ class GTMCPServer {
           },
         },
         {
+          name: 'list_user_permissions',
+          description: '指定されたアカウントのユーザー権限一覧を取得します（tagmanager.manage.usersスコープ必要）',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+            },
+            required: ['accountId'],
+          },
+        },
+        {
+          name: 'get_user_permission',
+          description: '指定されたユーザー権限の詳細を取得します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              userPermissionId: {
+                type: 'string',
+                description: 'ユーザー権限ID（list_user_permissionsで取得したpathの末尾）',
+              },
+            },
+            required: ['accountId', 'userPermissionId'],
+          },
+        },
+        {
+          name: 'create_user_permission',
+          description: 'アカウント・コンテナへのユーザーアクセスを作成します。emailAddress、accountAccess（permission: noAccess/user/admin）、containerAccess（containerIdとpermission: noAccess/read/edit/approve/publish）を指定します。',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              emailAddress: {
+                type: 'string',
+                description: 'ユーザーのメールアドレス',
+              },
+              accountAccess: {
+                type: 'object',
+                description: 'アカウント権限',
+                properties: {
+                  permission: {
+                    type: 'string',
+                    enum: ['noAccess', 'user', 'admin'],
+                    description: 'noAccess / user / admin',
+                  },
+                },
+              },
+              containerAccess: {
+                type: 'array',
+                description: 'コンテナごとの権限',
+                items: {
+                  type: 'object',
+                  properties: {
+                    containerId: { type: 'string' },
+                    permission: {
+                      type: 'string',
+                      enum: ['noAccess', 'read', 'edit', 'approve', 'publish'],
+                    },
+                  },
+                },
+              },
+            },
+            required: ['accountId', 'emailAddress', 'accountAccess'],
+          },
+        },
+        {
+          name: 'update_user_permission',
+          description: 'ユーザー権限を更新します（accountAccess、containerAccessを指定）',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: { type: 'string' },
+              userPermissionId: { type: 'string' },
+              accountAccess: {
+                type: 'object',
+                properties: {
+                  permission: { type: 'string', enum: ['noAccess', 'user', 'admin'] },
+                },
+              },
+              containerAccess: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    containerId: { type: 'string' },
+                    permission: {
+                      type: 'string',
+                      enum: ['noAccess', 'read', 'edit', 'approve', 'publish'],
+                    },
+                  },
+                },
+              },
+            },
+            required: ['accountId', 'userPermissionId'],
+          },
+        },
+        {
+          name: 'delete_user_permission',
+          description: 'ユーザー権限を削除し、アカウントへのアクセスを取り消します',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: { type: 'string' },
+              userPermissionId: { type: 'string' },
+            },
+            required: ['accountId', 'userPermissionId'],
+          },
+        },
+        {
           name: 'list_containers',
           description: '指定されたアカウントのコンテナ一覧を取得します',
           inputSchema: {
@@ -1218,6 +1336,98 @@ class GTMCPServer {
                     await this.gtmClient.updateAccount(args.accountId, {
                       name: args.name,
                     }),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'list_user_permissions':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.listUserPermissions(args.accountId),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'get_user_permission':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.getUserPermission(
+                      args.accountId,
+                      args.userPermissionId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'create_user_permission': {
+            const body = {
+              emailAddress: args.emailAddress,
+              accountAccess: args.accountAccess,
+            };
+            if (args.containerAccess && args.containerAccess.length > 0) {
+              body.containerAccess = args.containerAccess;
+            }
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.createUserPermission(args.accountId, body),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+          }
+
+          case 'update_user_permission': {
+            const updateBody = {};
+            if (args.accountAccess) updateBody.accountAccess = args.accountAccess;
+            if (args.containerAccess) updateBody.containerAccess = args.containerAccess;
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.updateUserPermission(
+                      args.accountId,
+                      args.userPermissionId,
+                      updateBody
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+          }
+
+          case 'delete_user_permission':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.deleteUserPermission(
+                      args.accountId,
+                      args.userPermissionId
+                    ),
                     null,
                     2
                   ),
