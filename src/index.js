@@ -372,6 +372,50 @@ class GTMCPServer {
           },
         },
         {
+          name: 'get_workspace_status',
+          description: 'ワークスペースのステータスを取得します。ベースバージョンからの変更エンティティ（workspaceChange）とマージコンフリクト（mergeConflict）を返します。承認レビュー前の確認に利用できます。',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId'],
+          },
+        },
+        {
+          name: 'get_workspace_review_info',
+          description: '承認レビュー用にワークスペースの変更サマリと参考情報をまとめて取得します。ワークスペース名・変更対象（タグ/トリガー/変数等）の集計・マージコンフリクトの有無・レビュー用メモを返します。承認依頼を受けた際の判断材料として利用できます。',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              accountId: {
+                type: 'string',
+                description: 'アカウントID',
+              },
+              containerId: {
+                type: 'string',
+                description: 'コンテナID',
+              },
+              workspaceId: {
+                type: 'string',
+                description: 'ワークスペースID',
+              },
+            },
+            required: ['accountId', 'containerId', 'workspaceId'],
+          },
+        },
+        {
           name: 'create_workspace',
           description: '新しいワークスペースを作成します',
           inputSchema: {
@@ -1547,6 +1591,42 @@ class GTMCPServer {
                   type: 'text',
                   text: JSON.stringify(
                     await this.gtmClient.getWorkspace(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'get_workspace_status':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.getWorkspaceStatus(
+                      args.accountId,
+                      args.containerId,
+                      args.workspaceId
+                    ),
+                    null,
+                    2
+                  ),
+                },
+              ],
+            };
+
+          case 'get_workspace_review_info':
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    await this.gtmClient.getWorkspaceReviewInfo(
                       args.accountId,
                       args.containerId,
                       args.workspaceId

@@ -226,6 +226,109 @@ export class GTMClient {
   }
 
   /**
+   * ワークスペースのステータスを取得（変更・コンフリクト）
+   * ベースバージョンからの変更エンティティとマージコンフリクトを返す。承認レビュー時の参考に利用可能。
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @returns {Promise<{workspaceChange: Array, mergeConflict: Array}>}
+   */
+  async getWorkspaceStatus(accountId, containerId, workspaceId) {
+    await this.ensureAuth();
+    const path = `accounts/${accountId}/containers/${containerId}/workspaces/${workspaceId}`;
+    const response = await this.tagmanager.accounts.containers.workspaces.getStatus({
+      path
+    });
+    return response.data || { workspaceChange: [], mergeConflict: [] };
+  }
+
+  /**
+   * 承認レビュー用にワークスペースの変更サマリと参考情報をまとめて取得する
+   * getWorkspaceStatus + ワークスペース情報を組み合わせ、レビューに必要な情報を構造化して返す。
+   * @param {string} accountId - アカウントID
+   * @param {string} containerId - コンテナID
+   * @param {string} workspaceId - ワークスペースID
+   * @returns {Promise<Object>} レビュー用サマリ（workspace, status, changeSummary, mergeConflicts, reviewNotes）
+   */
+  async getWorkspaceReviewInfo(accountId, containerId, workspaceId) {
+    await this.ensureAuth();
+    const [workspace, status] = await Promise.all([
+      this.getWorkspace(accountId, containerId, workspaceId),
+      this.getWorkspaceStatus(accountId, containerId, workspaceId)
+    ]);
+
+    const workspaceChange = status.workspaceChange || [];
+    const mergeConflict = status.mergeConflict || [];
+
+    const changeSummary = { tags: [], triggers: [], variables: [], builtInVariables: [], folders: [], total: workspaceChange.length };
+    const byPath = (pathStr) => {
+      if (!pathStr || typeof pathStr !== 'string') return null;
+      const parts = pathStr.split('/');
+      const idx = parts.indexOf('tags');
+      if (idx !== -1 && parts[idx + 1]) return { type: 'tags', id: parts[idx + 1] };
+      const tidx = parts.indexOf('triggers');
+      if (tidx !== -1 && parts[tidx + 1]) return { type: 'triggers', id: parts[tidx + 1] };
+      const vidx = parts.indexOf('variables');
+      if (vidx !== -1 && parts[vidx + 1]) return { type: 'variables', id: parts[vidx + 1] };
+      const bidx = parts.indexOf('built_in_variables');
+      if (bidx !== -1) return { type: 'builtInVariables' };
+      const fidx = parts.indexOf('folders');
+      if (fidx !== -1 && parts[fidx + 1]) return { type: 'folders', id: parts[fidx + 1] };
+      return null;
+    };
+
+    for (const entity of workspaceChange) {
+      const path = entity.path || entity.name || '';
+      const parsed = byPath(path);
+      if (parsed) {
+        const id = parsed.id || '';
+        const name = entity.name || entity.displayName || (parsed.type === 'builtInVariables' ? 'Built-in variables' : id || path);
+        const item = { path, id, name: typeof name === 'string' ? name : (id || path) };
+        if (parsed.type === 'tags') changeSummary.tags.push(item);
+        else if (parsed.type === 'triggers') changeSummary.triggers.push(item);
+        else if (parsed.type === 'variables') changeSummary.variables.push(item);
+        else if (parsed.type === 'builtInVariables') changeSummary.builtInVariables.push(item);
+        else if (parsed.type === 'folders') changeSummary.folders.push(item);
+      }
+    }
+
+    const reviewNotes = [];
+    if (mergeConflict.length > 0) {
+      reviewNotes.push(`マージコンフリクトが ${mergeConflict.length} 件あります。公開前に解決が必要です。`);
+    }
+    if (changeSummary.total === 0 && mergeConflict.length === 0) {
+      reviewNotes.push('ベースバージョンからの変更は検出されていません。');
+    } else {
+      const parts = [];
+      if (changeSummary.tags.length) parts.push(`タグ ${changeSummary.tags.length}`);
+      if (changeSummary.triggers.length) parts.push(`トリガー ${changeSummary.triggers.length}`);
+      if (changeSummary.variables.length) parts.push(`変数 ${changeSummary.variables.length}`);
+      if (changeSummary.folders.length) parts.push(`フォルダ ${changeSummary.folders.length}`);
+      if (changeSummary.builtInVariables.length) parts.push('組み込み変数');
+      if (parts.length) reviewNotes.push(`変更対象: ${parts.join(', ')}`);
+    }
+
+    return {
+      workspace: {
+        workspaceId: workspace.workspaceId,
+        name: workspace.name,
+        description: workspace.description || ''
+      },
+      status: {
+        workspaceChange: status.workspaceChange,
+        mergeConflict: status.mergeConflict
+      },
+      changeSummary: {
+        ...changeSummary,
+        hasChanges: changeSummary.total > 0,
+        hasMergeConflicts: mergeConflict.length > 0
+      },
+      mergeConflicts: mergeConflict,
+      reviewNotes
+    };
+  }
+
+  /**
    * ワークスペースのコンフリクトを解決
    * @param {string} accountId - アカウントID
    * @param {string} containerId - コンテナID
