@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>tagFiringOption dual trigger test</title>
+  <script>window.dataLayer = window.dataLayer || [];</script>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl+'&cb='+Date.now();f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-P3CCRMP');</script>
+</head>
+<body>
+  <h1>Dual trigger firing option test</h1>
+  <pre id="out">waiting...</pre>
+  <script>
+  function summarize() {
+    var log = window.__gtmFireLog || [];
+    var counts = {};
+    for (var i=0;i<log.length;i++) counts[log[i].option]=(counts[log[i].option]||0)+1;
+    document.getElementById('out').textContent = JSON.stringify({counts:counts,total:log.length,log:log},null,2);
+    return {counts:counts,total:log.length,log:log};
+  }
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      window.__gtmFireLog = [];
+      window.dataLayer.push({event:'test_fire_dual', n:1});
+      setTimeout(function(){ window.dataLayer.push({event:'test_fire_dual', n:2}); }, 300);
+      setTimeout(function(){ window.dataLayer.push({event:'test_fire_dual', n:3}); }, 600);
+      setTimeout(function(){ window.__lastSummary = summarize(); }, 1500);
+    }, 1200);
+  });
+  </script>
+</body>
+</html>

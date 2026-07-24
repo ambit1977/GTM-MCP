@@ -643,6 +643,11 @@ class GTMCPServer {
                 },
                 description: '発火トリガーIDの配列',
               },
+              tagFiringOption: {
+                type: 'string',
+                enum: ['unlimited', 'oncePerEvent', 'oncePerLoad'],
+                description: 'タグの呼び出しオプション。未指定時は UI デフォルト相当の oncePerEvent を設定する（省略すると API 上ブランクになり unlimited 相当の挙動になるため）',
+              },
             },
             required: ['accountId', 'containerId', 'workspaceId', 'name', 'type'],
           },
@@ -687,6 +692,11 @@ class GTMCPServer {
                   type: 'string',
                 },
                 description: '発火トリガーIDの配列',
+              },
+              tagFiringOption: {
+                type: 'string',
+                enum: ['unlimited', 'oncePerEvent', 'oncePerLoad'],
+                description: 'タグの呼び出しオプション。未指定時は既存値を維持し、既存もブランクなら oncePerEvent を補完する',
               },
             },
             required: ['accountId', 'containerId', 'workspaceId', 'tagId'],
@@ -1895,6 +1905,8 @@ class GTMCPServer {
                         type: args.type,
                         parameter: args.parameter || [],
                         firingTriggerId: args.firingTriggerId || [],
+                        // UI デフォルト相当。未指定のまま API に送るとブランクになり unlimited 相当になる
+                        tagFiringOption: args.tagFiringOption || 'oncePerEvent',
                       }
                     ),
                     null,
@@ -1921,9 +1933,14 @@ class GTMCPServer {
               firingTriggerId: args.firingTriggerId !== undefined ? args.firingTriggerId : existingTag.firingTriggerId || [],
             };
 
-            // その他のプロパティを保持
-            if (existingTag.tagFiringOption) {
+            // その他のプロパティを保持（tagFiringOption は明示指定があれば優先）
+            if (args.tagFiringOption) {
+              tagData.tagFiringOption = args.tagFiringOption;
+            } else if (existingTag.tagFiringOption) {
               tagData.tagFiringOption = existingTag.tagFiringOption;
+            } else {
+              // 既存がブランクのまま残らないよう UI デフォルト相当を補完
+              tagData.tagFiringOption = 'oncePerEvent';
             }
             if (existingTag.consentSettings) {
               tagData.consentSettings = existingTag.consentSettings;

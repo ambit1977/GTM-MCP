@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>tagFiringOption blank behavior test</title>
+  <!-- Google Tag Manager -->
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  </script>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-P3CCRMP');</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+  <h1>tagFiringOption blank test (GTM-P3CCRMP)</h1>
+  <p>Push <code>test_fire_multi</code> three times on same page load, then inspect <code>window.__gtmFireLog</code>.</p>
+  <button id="fire">Fire test_fire_multi x1</button>
+  <button id="fire3">Fire x3</button>
+  <pre id="out"></pre>
+  <script>
+  function render() {
+    const log = window.__gtmFireLog || [];
+    const counts = {};
+    for (const e of log) counts[e.option] = (counts[e.option] || 0) + 1;
+    document.getElementById('out').textContent = JSON.stringify({ counts, log }, null, 2);
+  }
+  function fireOnce() {
+    window.dataLayer.push({ event: 'test_fire_multi', n: Date.now() });
+    setTimeout(render, 300);
+  }
+  document.getElementById('fire').onclick = fireOnce;
+  document.getElementById('fire3').onclick = function () {
+    fireOnce();
+    setTimeout(fireOnce, 400);
+    setTimeout(fireOnce, 800);
+    setTimeout(render, 1500);
+  };
+  // Auto: wait for GTM then fire 3 times
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      fireOnce();
+      setTimeout(fireOnce, 500);
+      setTimeout(fireOnce, 1000);
+      setTimeout(render, 2000);
+    }, 1500);
+  });
+  </script>
+</body>
+</html>

@@ -165,6 +165,7 @@ MCPサーバーを再起動する方法は以下の通りです：
     - `img`: カスタム画像タグ（ピクセルトラッキング）
     - `fbq`: Facebookピクセル
     - `ua`: Universal Analytics（旧GA）
+  - **`tagFiringOption`（タグの呼び出しオプション）**: `unlimited` / `oncePerEvent` / `oncePerLoad`。`create_tag` で未指定の場合は UI デフォルト相当の **`oncePerEvent` を自動設定**する（省略すると API 上ブランクになり、ランタイムでは unlimited 相当になるため）
 
 #### トリガー操作
 - `list_triggers`: トリガー一覧を取得
